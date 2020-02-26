@@ -2,13 +2,17 @@
 
 ## 算法
 
-<img src="./image.jpg" style="zoom:33%;" />
+<img src="images/示意图.jpg" style="zoom:33%;" />
 
-则利用正向运动学，可得如下关系
+设终点坐标(相对于x0-y0坐标系)为(x, y)。利用正向运动学，可得如下关系
+
+![](images/eq1.png)
 $$
 \phi=\theta_1+\theta_2+\theta_3=\text{atan2}(y, x),
 $$
 以及
+
+![](images/eq2.png)
 $$
 \left(
 \begin{matrix}
@@ -27,6 +31,8 @@ l_3 \\
 \right),
 $$
 其中
+
+![](images/eq3.png)
 $$
 ^3_0T=\left(
 \begin{matrix}
@@ -38,6 +44,8 @@ $$
 \right).
 $$
 由此可得
+
+![](images/eq4.png)
 $$
 \begin{align}
 & \theta_1+\theta_2=2\tan^{-1}(\frac{b+\sqrt{a^2+b^2-c^2}}{a+c}),\\
@@ -45,6 +53,8 @@ $$
 \end{align}
 $$
 其中
+
+![](images/eq5.png)
 $$
 \begin{align}
 & a=2l_2(x-l_3\cos\phi) ,\\
