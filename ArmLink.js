@@ -21,10 +21,10 @@ class ArmLink {
 	plot() {
 		let points = '', circle = '';
 		this.arm_joint_arr.forEach( p => {
-			circle += `<circle cx="${p[0] + 300}" cy="${p[1] + 300}" r="3" style="stroke-width: 1;  fill: black;"/>`;
+			circle += `<circle cx="${p[0] + 300}" cy="${p[1] + 300}" r="3" style="stroke-width: 2;  fill: black;"/>`;
 			points += (p[0] + 300) + ',' + (p[1] + 300) + ' ';
 		})
-		document.querySelector('#canvas').innerHTML = `<polyline points="${points}" style="fill: none; stroke:red; stroke-width:1"/>` + circle;
+		document.querySelector('#canvas').innerHTML = `<polyline points="${points}" style="fill: none; stroke:red; stroke-width:3"/>` + circle;
 	}
 
 	get_joint_angle(x, y) {
@@ -36,7 +36,7 @@ class ArmLink {
 		let c = x*x + y*y + lens[1]*lens[1] + lens[2]*lens[2] - lens[0]*lens[0] - 2*lens[2]*( x*cos(phi) + y*sin(phi) );
 		let d = b*b + a*a - c*c;
 		if( d < 0 ) {
-			console.log('无法达到');
+		
 			return false;
 		} else {
 			psi = theta12 = 2*atan( (b - sqrt(d) ) / (a + c) );
@@ -48,19 +48,6 @@ class ArmLink {
 				theta1 = -theta1;
 				theta2 = theta12 - theta1;
 			}
-			if( abs(theta1*180/pi - 180) < 1 ) {
-				console.log('theta1临界值');
-			}
-			if( abs(theta1*180/pi) < 1 ) {
-				console.log('theta1临界值');
-			}
-			if( abs(theta2*180/pi + 180) < 1 ) {
-				console.log('theta2临界值');
-			}
-			if( abs(theta3*180/pi + 180) < 1 ) {
-				console.log('theta3临界值');
-			}
-			console.log( [theta1, theta1_, theta2, theta3, theta12, theta123].map( a => (a*180/pi).toFixed(3)) )
 			this.joint_angles = [theta1, theta2, theta3];
 			return true;
 		}
@@ -70,7 +57,7 @@ class ArmLink {
 		this.isRender = !1; // 控制更新频率
 		setTimeout(() => {
 			this.isRender = !0;
-		}, 150);
+		}, 50);
 		if( this.get_joint_angle(x, y) ) {
 			this.update_joint();
 			this.plot();	
@@ -83,10 +70,11 @@ class ArmLink {
 			if( ele.id && ele.id === 'canvas' ) {
 				let box = this.canvas.getBoundingClientRect()
 				let x = round(e.clientX - box.left) - 300;
-				let y = 300 - round\(e.clientY - box.top);
+				let y = 300 - round(e.clientY - box.top);
 				if( this.isRender ) {
-					console.log([x, y]);
+				
 					this.render(x, y);
+				
 				}
 			}
 		})
@@ -115,4 +103,4 @@ const pi = Math.PI;
 
 var armLink = new ArmLink(document.querySelector('#canvas'), [90, 100, 80]);
 armLink.mousemove();
-armLink.render(300, 0);
+armLink.render(270, 0);
