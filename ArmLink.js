@@ -21,8 +21,10 @@ class ArmLink {
 	plot() {
 		let points = '', circle = '';
 		this.arm_joint_arr.forEach( p => {
-			circle += `<circle cx="${p[0] + 300}" cy="${p[1] + 300}" r="3" style="stroke-width: 2;  fill: black;"/>`;
-			points += (p[0] + 300) + ',' + (p[1] + 300) + ' ';
+			let x = fix(p[0] + 300, 3);
+			let y = fix(p[1] + 300, 3);
+			circle += `<circle cx="${x}" cy="${y}" r="3" style="stroke-width: 2;  fill: black;"/>`;
+			points += x + ',' + y + ' ';
 		})
 		document.querySelector('#arm').innerHTML = `<polyline points="${points}" style="fill: none; stroke:red; stroke-width:3"/>` + circle;
 	}
@@ -39,7 +41,7 @@ class ArmLink {
 		if( d < 0 ) {
 			// 无法到达
 			if( x*x+y*y <= length*length ) {
-				this.canvas.innerHTML +=`<circle cx="${x + 300}" cy="${y + 300}" r="2" style="stroke-width: 0; fill: gray;"/>`;
+				this.canvas.innerHTML +=`<circle cx="${fix(x + 300, 3)}" cy="${fix(y + 300, 3)}" r="2" style="stroke-width: 0; fill: gray;"/>`;
 			}
 			return false;
 		} else {
@@ -82,8 +84,8 @@ class ArmLink {
 			let ele = e.target;
 			if( ele.id && ele.id === 'canvas' ) {
 				let box = this.canvas.getBoundingClientRect()
-				let x = round(e.clientX - box.left) - 300;
-				let y = 300 - round(e.clientY - box.top);
+				let x = (e.clientX - box.left) - 300;
+				let y = 300 - (e.clientY - box.top);
 				if( this.is_render ) {
 					this.render(x, y);
 				}
@@ -102,15 +104,15 @@ class ArmLink {
 
 	beyond_reach(i) {
 		// 显示出机械手不能到达的区域。
-		if( i<2000 ) {
+		if( i<3000 ) {
 			setTimeout(() => {
-				let x = round(2*length*random()) - 300;
-				let y = round(2*length*random()) - 300;
+				let x = 2*length*random() - 300;
+				let y = 2*length*random() - 300;
 				if( x*x+y*y < length*length ) {
 					this.get_joint_angle(x, y);
 				}
 				this.beyond_reach(i+1);
-			}, 3)
+			}, 2)
 		}
 	}
 }
@@ -122,11 +124,11 @@ var asin = Math.asin; // [-pi/2, pi/2]
 var acos = Math.acos; // [0, pi]
 var atan = Math.atan; // [-pi/2, pi/2]
 var atan2 = Math.atan2; // // [-pi, pi]
-var round = Math.round;
 var random = Math.random;
+var fix = (d, i) => parseFloat( d.toFixed(i) );
 const pi = Math.PI;
 
-var link_length = [70 + round(30*random()), 70 + round(30*random()), 70 + round(30*random())];
+var link_length = [70, 70, 70].map(d => d +  fix(30*random(), 0) );
 var length = link_length.reduce( (i, j) => i+j);
 var armLink = new ArmLink(document.querySelector('#canvas'), link_length);
 armLink.canvas.innerHTML += `<circle cx="300" cy="300" r="${length + 5}" style="stroke-width: 2; stroke: black; fill: none;"/>`;
