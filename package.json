@@ -1,0 +1,10 @@
+{
+  "name": "sci-info-system",
+  "version": "1.0.0",
+  "homepage": "https://github.com/jiandandaoxingfu/point-tracking",
+  "private": false,
+
+  "scripts": {
+    "deploy": "gh-pages -d ./"
+  }
+}
