@@ -37,7 +37,8 @@ class ArmLink {
 		let c = x*x + y*y + lens[1]*lens[1] + lens[2]*lens[2] - lens[0]*lens[0] - 2*lens[2]*( x*cos(phi) + y*sin(phi) );
 		let d = b*b + a*a - c*c;
 		if( d < 0 ) {
-			if( x*x+y*y < length*length ) {
+			// 无法到达
+			if( x*x+y*y <= length*length - 1 ) {
 				this.canvas.innerHTML +=`<circle cx="${x + 300}" cy="${y + 300}" r="2" style="stroke-width: 0; fill: gray;"/>`;
 			}
 			return false;
@@ -82,6 +83,7 @@ class ArmLink {
 	}
 
 	transform(OA, alpha, translate) {
+		// 以原点为端点的线段做旋转平移。
 		let mat = [
 			[cos(alpha), -sin(alpha)],
 			[sin(alpha), cos(alpha)]
