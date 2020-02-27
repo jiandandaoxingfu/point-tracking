@@ -7,23 +7,23 @@
 
 设终点坐标(相对于x_0-y_0坐标系)为(x, y)。利用正向运动学，可得如下关系
 
-![图片无法加载](images/eq1.png)
+![图片无法加载](images/eq1.PNG)
 
 以及
 
-![图片无法加载](images/eq2.png)
+![图片无法加载](images/eq2.PNG)
 
 其中
 
-![图片无法加载](images/eq3.png)
+![图片无法加载](images/eq3.PNG)
 
 由此可得
 
-![图片无法加载](images/eq4.png)
+![图片无法加载](images/eq4.PNG)
 
 其中
 
-![图片无法加载](images/eq5.png)
+![图片无法加载](images/eq5.PNG)
 
 由以上结果就可以得到theta_1, theta_2, theta_3。然后利用正向运动学即可得到节点处的坐标，从而绘制出图形。
 
