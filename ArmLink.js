@@ -37,7 +37,9 @@ class ArmLink {
 		let c = x*x + y*y + lens[1]*lens[1] + lens[2]*lens[2] - lens[0]*lens[0] - 2*lens[2]*( x*cos(phi) + y*sin(phi) );
 		let d = b*b + a*a - c*c;
 		if( d < 0 ) {
-			this.canvas.innerHTML +=`<circle cx="${x + 300}" cy="${y + 300}" r="2" style="stroke-width: 0; fill: gray;"/>`;
+			if( x*x+y*y < length*length ) {
+				this.canvas.innerHTML +=`<circle cx="${x + 300}" cy="${y + 300}" r="2" style="stroke-width: 0; fill: gray;"/>`;
+			}
 			return false;
 		} else {
 			psi = theta12 = 2*atan( (b + sqrt(d) ) / (a + c) ); // b +/- sqrt(d)都可以。
@@ -73,9 +75,7 @@ class ArmLink {
 				let x = round(e.clientX - box.left) - 300;
 				let y = 300 - round(e.clientY - box.top);
 				if( this.is_render ) {
-				
 					this.render(x, y);
-				
 				}
 			}
 		})
@@ -87,6 +87,20 @@ class ArmLink {
 			[sin(alpha), cos(alpha)]
 		];
 		return [mat[0][0] * OA[0] + mat[0][1] * OA[1] + translate[0], mat[1][0] * OA[0] + mat[1][1] * OA[1] + translate[1]];
+	}
+
+	beyond_reach(i) {
+		// 显示出机械手不能到达的区域。
+		if( i<2000 ) {
+			setTimeout(() => {
+				let x = round(2*length*random()) - 300;
+				let y = round(2*length*random()) - 300;
+				if( x*x+y*y < length*length ) {
+					this.get_joint_angle(x, y);
+				}
+				this.beyond_reach(i+1);
+			}, 3)
+		}
 	}
 }
 
@@ -106,4 +120,5 @@ var length = link_length.reduce( (i, j) => i+j);
 var armLink = new ArmLink(document.querySelector('#canvas'), link_length);
 armLink.canvas.innerHTML += `<circle cx="300" cy="300" r="${length}" style="stroke-width: 2; stroke: black; fill: none;"/>`;
 armLink.mousemove();
+armLink.beyond_reach(0);
 armLink.render(length, 0);
