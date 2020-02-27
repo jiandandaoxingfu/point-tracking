@@ -30,7 +30,7 @@ class ArmLink {
 	get_joint_angle(x, y) {
 		// 逆向动力学，求夹角。
 		let lens = this.link_length;
-		let theta123, phi, theta12, psi, theta1, theta1_, theta2, theta3;
+		let theta123, phi, theta12, theta12_, psi, theta1, theta1_, theta2, theta3;
 		phi = theta123 = atan2(y, x);
 		let a = 2 * (x -  lens[2] * cos(phi)) * lens[1];
 		let b = 2 * (y -  lens[2] * sin(phi)) * lens[1];
@@ -38,12 +38,13 @@ class ArmLink {
 		let d = b*b + a*a - c*c;
 		if( d < 0 ) {
 			// 无法到达
-			if( x*x+y*y <= length*length - 1 ) {
+			if( x*x+y*y <= length*length ) {
 				this.canvas.innerHTML +=`<circle cx="${x + 300}" cy="${y + 300}" r="2" style="stroke-width: 0; fill: gray;"/>`;
 			}
 			return false;
 		} else {
 			psi = theta12 = 2*atan( (b + sqrt(d) ) / (a + c) ); // b +/- sqrt(d)都可以。
+			theta12_ = 2*atan( (b - sqrt(d) ) / (a + c) );
 			theta1 = acos( (x - lens[2]*cos(phi) - lens[1]*cos(psi)) / lens[0] );
 			theta1_ = asin( (y - lens[2]*sin(phi) - lens[1]*sin(psi)) / lens[0] )
 			theta2 = theta12 - theta1;
@@ -52,7 +53,15 @@ class ArmLink {
 				theta1 = -theta1;
 				theta2 = theta12 - theta1;
 			}
-			this.joint_angles = [theta1, theta2, theta3];
+
+			this.joint_angles = [theta1, theta2, theta3].map( theta => {
+				if( theta > pi ) {
+					theta -= 2*pi;
+				} else if( theta < -pi ) {
+					theta += 2*pi;
+				}
+				return theta;
+			});
 			return true;
 		}
 	}
@@ -61,7 +70,7 @@ class ArmLink {
 		this.is_render = !1; // 控制更新频率
 		setTimeout(() => {
 			this.is_render = !0;
-		}, 50);
+		}, 25);
 		if( this.get_joint_angle(x, y) ) {
 			this.update_joint();
 			this.plot();	
@@ -108,11 +117,11 @@ class ArmLink {
 
 var sqrt = Math.sqrt;
 var sin = Math.sin;
-var asin = Math.asin;
-var atan = Math.atan;
-var atan2 = Math.atan2;
-var cos = Math.cos;
-var acos = Math.acos;
+var cos = Math.cos; 
+var asin = Math.asin; // [-pi/2, pi/2]
+var acos = Math.acos; // [0, pi]
+var atan = Math.atan; // [-pi/2, pi/2]
+var atan2 = Math.atan2; // // [-pi, pi]
 var round = Math.round;
 var random = Math.random;
 const pi = Math.PI;
@@ -120,7 +129,7 @@ const pi = Math.PI;
 var link_length = [70 + round(30*random()), 70 + round(30*random()), 70 + round(30*random())];
 var length = link_length.reduce( (i, j) => i+j);
 var armLink = new ArmLink(document.querySelector('#canvas'), link_length);
-armLink.canvas.innerHTML += `<circle cx="300" cy="300" r="${length}" style="stroke-width: 2; stroke: black; fill: none;"/>`;
+armLink.canvas.innerHTML += `<circle cx="300" cy="300" r="${length + 5}" style="stroke-width: 2; stroke: black; fill: none;"/>`;
 armLink.mousemove();
 armLink.beyond_reach(0);
 armLink.render(length, 0);
