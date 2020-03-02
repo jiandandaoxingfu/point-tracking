@@ -2,30 +2,55 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>机械手点追踪可视化</title>
-	<style type="text/css">
+	<title>机械臂</title>
+	<style>
 		* {
-			padding: 0;
 			margin: 0;
+			padding: 0;
 			text-decoration: none;
 		}
-		a {
+		div {
+			position: absolute;
+			top: 25%;
+			height: 70%;
+			width: 100%;
+			text-align: center;
+		}
+
+		div a {
+			font-size: 30px;
+			color: black;
+			border: 1px solid black;
+			border-radius: 5px;
+			padding: 6px;
+			margin: 25px;
+		}
+
+		div a:hover {
+			border: 1px solid blue;
 			color: blue;
 		}
-
-		a:hover {
+		
+		div a:active {
+			border: 1px solid red;
 			color: red;
 		}
-	</style>
 
+		footer {
+			position: absolute;
+			bottom: 2%;
+			width: 100%;
+			text-align: center;
+		}
+	</style>
 </head>
 <body>
-	<div style="width: 100%; height: 100%; text-align: center;">
-		<svg id="canvas" style="width: 600px; height: 600px; transform-origin: center center; transform: rotateX(180deg);">
-			<g id="arm"></g>
-		</svg>
-		<div><a href="https://github.com/jiandandaoxingfu/point-tracking">Github</a></div>
+	<div>
+		<a href="./page/3DOF-2d.html">平面三自由度</a>
+		<a href="./page/4DOF-3d.html">三维四自由度</a>
 	</div>
-	<script type="text/javascript" src="ArmLink.js"></script>
+	<footer>
+		<a href="https://github.com/jiandandaoxingfu/point-tracking">项目地址</a>
+	</footer>
 </body>
 </html>
