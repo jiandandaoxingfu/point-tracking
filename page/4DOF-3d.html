@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title>4DOF-3d</title>
+		<script type="text/javascript" src="../lib/three.js"></script>
+		<script type="text/javascript" src="../lib/TrackballControls.js"></script>
+		<script type="text/javascript" src="../lib/OrbitControls.js"></script>
+	</head>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		#hidden {
+			display: none;
+		}
+	</style>
+	<body>
+		<div id='main'></div>
+		<div id='hidden'></div>
+		<script type="text/javascript">
+			// 场景
+			var scene = new THREE.Scene();
+			
+			// 透视相机，更符合现实： 视角， 场景长宽比， 渲染始末距离相机的位置
+			var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 10000);
+			
+			// 渲染器
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setClearColor('black');
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		</script>
+
+		<script type="text/javascript" src='../js/4DOF-3d.js'></script>
+		<script type="text/javascript">
+			document.getElementById('main').appendChild(renderer.domElement);
+			renderer.render(scene, camera);
+		</script>
+	</body>
+</html>
