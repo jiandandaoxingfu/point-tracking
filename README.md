@@ -54,9 +54,9 @@
 
 ## Demo
 
-平面三自由度机械臂[Demo.](https://github.com/jiandandaoxingfu/point-tracking)
+平面三自由度机械臂[Demo.](https://jiandandaoxingfu.github.io/point-tracking)
 
-三维四自由度机械臂[Demo](https://github.com/jiandandaoxingfu/point-tracking).
+三维四自由度机械臂[Demo](https://jiandandaoxingfu.github.io/point-tracking).
 
 ## 参考资料
 
