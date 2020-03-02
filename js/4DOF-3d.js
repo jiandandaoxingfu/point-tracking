@@ -13,7 +13,7 @@ class Robot {
 
 	init() {
 		let world = new THREE.Group();
-		let texture = new THREE.TextureLoader().load('../images/tile-floor01.jpg');
+		let texture = new THREE.TextureLoader().load('../images/floor.jpg');
 		plane = new THREE.Mesh(
 			new THREE.CircleGeometry(width, 50, 50), 
 			new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide, transparent: true, opacity: 0.9})
