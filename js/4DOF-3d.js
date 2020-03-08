@@ -1,7 +1,6 @@
 class Robot {
 	// 考虑三维四自由度机械臂。
 	constructor(arm_lengths, radius) {
-		this.canvas = null;
 		this.arm_lengths = arm_lengths;
 		this.joint_radius = radius;
 		this.joint_angles = [0, 0, 0, 0];
@@ -109,8 +108,8 @@ class Robot {
 	get_joint_angle(x, y) {
 		// 逆向动力学，求夹角。
 		let lens = this.arm_lengths.slice(1);
-		let theta123, phi, theta12, theta12_, psi,
-			 theta1, theta1_, theta2, theta3, joint_angles;
+		let theta123, phi, theta12, psi,
+			 theta1, theta1_, theta2, theta3;
 		phi = theta123 = Math.atan2(y, x);
 		let a = 2 * (x -  lens[2] * Math.cos(phi)) * lens[1];
 		let b = 2 * (y -  lens[2] * Math.sin(phi)) * lens[1];
@@ -120,7 +119,6 @@ class Robot {
 			return !1;
 		} else {
 			psi = theta12 = 2*Math.atan( (b + Math.sqrt(d) ) / (a + c) );
-			theta12_ = 2*Math.atan( (b - Math.sqrt(d) ) / (a + c) );
 			theta1 = Math.acos( (x - lens[2]*Math.cos(phi) - lens[1]*Math.cos(psi)) / lens[0] );
 			theta1_ = Math.asin( (y - lens[2]*Math.sin(phi) - lens[1]*Math.sin(psi)) / lens[0] )
 			theta2 = theta12 - theta1;
@@ -257,7 +255,6 @@ class Robot {
 		let y = width*(1 - 2*Math.random());
 		let z = height*Math.random();
 		let r2 = x*x + y*y + Math.pow(z - this.arm_lengths[0], 2);
-		let len = this.arm_lengths.slice(1);
 		if( z < 0 || r2 > max_r*max_r || r2 < min_r*min_r ) {
 			this.start();
 		} else {
@@ -286,7 +283,8 @@ class Robot {
 const pi = Math.PI;
 var target, plane;
 var arm0, arm1, arm2, arm3;
-var len = [20, 15, 12, 16];
+var len = [15, 15, 15, 15].map( d => d + 15*Math.random() );
+console.log(len);
 var width = len.slice(1).reduce( (i, j) => i+j);
 var height = width + len[0];
 var max_r = width;

@@ -1,3 +1,15 @@
+<!-- MarkdownTOC -->
+
+- [平面三自由度机械臂](#%E5%B9%B3%E9%9D%A2%E4%B8%89%E8%87%AA%E7%94%B1%E5%BA%A6%E6%9C%BA%E6%A2%B0%E8%87%82)
+	- [算法](#%E7%AE%97%E6%B3%95)
+		- [正向运动学与逆向运动学](#%E6%AD%A3%E5%90%91%E8%BF%90%E5%8A%A8%E5%AD%A6%E4%B8%8E%E9%80%86%E5%90%91%E8%BF%90%E5%8A%A8%E5%AD%A6)
+		- [路径规划](#%E8%B7%AF%E5%BE%84%E8%A7%84%E5%88%92)
+		- [三维四自由度机械臂](#%E4%B8%89%E7%BB%B4%E5%9B%9B%E8%87%AA%E7%94%B1%E5%BA%A6%E6%9C%BA%E6%A2%B0%E8%87%82)
+	- [Demo](#demo)
+	- [参考资料 & 致谢](#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99--%E8%87%B4%E8%B0%A2)
+	- [问题](#%E9%97%AE%E9%A2%98)
+
+<!-- /MarkdownTOC -->
 [TOC]
 
 # 平面三自由度机械臂
@@ -56,7 +68,7 @@
 
 [Demo](https://jiandandaoxingfu.github.io/point-tracking).
 
-## 参考资料
+## 参考资料 & 致谢
 
 - 知乎专栏：[何小白：机器人学学习笔记](https://zhuanlan.zhihu.com/c_1208050340920299520).
 - Github：[Robot Arm Manipulator.](https://github.com/jiandandaoxingfu/Interactive_Graphics)
