@@ -189,17 +189,23 @@ class Robot {
 		return (Math.abs(angle - a1) > Math.abs(angle - a2) ) ? k2 : k1;
 	}
 
-	show_trace(pos_arr, beta, delta) {
+	show_trace(pos_arr, last_beta, beta) {
+		let delta = (beta - last_beta) % (2*pi);
+		if( delta < -pi ) {
+			delta += 2*pi;
+		} else if ( delta > pi ){
+			delta -= 2*pi;
+		}
+		delta = delta/pos_arr.length;
 		let curve = [];
-		pos_arr = [...pos_arr];
 		pos_arr = [...pos_arr, pos_arr.pop()];
 		pos_arr.forEach( p => {
 			// frame0 在 frame1 中的坐标，转化为在 frame0 中的坐标。
-			let x = p[0] * Math.cos(beta);
-			let y = p[0] * Math.sin(beta);
+			let x = p[0] * Math.cos(last_beta);
+			let y = p[0] * Math.sin(last_beta);
 			let z = p[1] + this.arm_lengths[0];
 			curve.push(new THREE.Vector3(x, y, z) );
-			beta += delta;
+			last_beta += delta;
 		})
 		curve = new THREE.CatmullRomCurve3(curve);
 		this.trace = new THREE.Mesh(
@@ -226,28 +232,39 @@ class Robot {
 	}
 
 	update() {
-		this.robot.rotation.y = this.joint_angles[0];
 		arm1.rotation.x = this.joint_angles[1] - pi/2;
 		arm2.rotation.x = this.joint_angles[2];
 		arm3.rotation.x = this.joint_angles[3];
 	}
 
-	render(pos_arr, delta_beta) {
-		if( pos_arr.length > 0 ) {
+	render(pos_arr) {
+		if( pos_arr.length < 2 ) {
 			setTimeout( () => {
-				this.get_joint_angle(...pos_arr[0]);
-				this.joint_angles[0] += delta_beta;
-				this.update();
-				this.render(pos_arr.slice(1), delta_beta);
-			}, 80)
-		} else {
-			this.last_pos = this.cur_pos;
-			setTimeout(() => {
+				this.last_pos = this.cur_pos;
 				plane.remove(this.trace);
 				this.trace = null;
 				this.start();
 			}, 500)
+			return
 		}
+
+		let pos = {x: pos_arr[0][0], y: pos_arr[0][1]};
+		let next_pos = {x: pos_arr[1][0], y: pos_arr[1][1]};
+		let dist = Math.sqrt( Math.pow(pos.x - next_pos.x, 2) + Math.pow(pos.y - next_pos.y, 2) );
+		let time_stamp = (dist + 35)*30;
+		let tween = new TWEEN.Tween(pos)
+    		.to(next_pos, time_stamp)
+    		.easing(TWEEN.Easing.Quadratic.InOut)
+    		.onUpdate(() => {
+    			this.get_joint_angle(pos.x, pos.y);
+				this.update();
+				let dist2 = Math.abs(pos.x - next_pos.x) + Math.abs(pos.y - next_pos.y);
+    			if( dist2 < 0.001 ) {
+    				TWEEN.removeAll();
+    				this.render(pos_arr.slice(1));
+    			};    			
+    		})
+    		.start();
 	}
 
 	start() {
@@ -266,16 +283,23 @@ class Robot {
 			this.joint_angles = [last_beta];
 			this.cur_pos = [x1, z1];
 			let pos_arr = this.via_point();
-			pos_arr = this.interpolation(pos_arr);
-			let delta = (beta - last_beta) % (2*pi);
-			if( delta < -pi ) {
-				delta += 2*pi;
-			} else if ( delta > pi ){
-				delta -= 2*pi;
+			let pos_arr_ = this.interpolation([...pos_arr]);
+			this.show_trace(pos_arr_, last_beta, beta);
+			this.render(pos_arr);
+			
+			let dist = Math.sqrt( Math.pow(pos_arr[0][0] - pos_arr[1][0], 2) + Math.pow(pos_arr[0][1] - pos_arr[1][1], 2) );
+			if( pos_arr.length === 3 ) {
+				dist += Math.sqrt( Math.pow(pos_arr[1][0] - pos_arr[2][0], 2) + Math.pow(pos_arr[1][1] - pos_arr[2][1], 2) );
 			}
-			delta = delta/pos_arr.length;
-			this.show_trace(pos_arr, last_beta, delta);
-			this.render(pos_arr, delta);
+			let time_stamp = (dist + 35)*30;
+			let angle = {beta: last_beta};
+			new TWEEN.Tween(angle)
+    			.to({beta: beta}, time_stamp)
+    			.easing(TWEEN.Easing.Quadratic.InOut)
+    			.onUpdate(() => {
+    				this.robot.rotation.y = angle.beta;
+    			})
+    			.start();
 		}
 	}
 }
@@ -312,6 +336,7 @@ camera.position.set(0, height, 2*height);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 var controls = new THREE.TrackballControls(camera);
 (function animate() {
+	TWEEN.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
