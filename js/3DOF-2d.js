@@ -115,42 +115,37 @@ class ArmLink {
 		return (Math.abs(angle - a1) > Math.abs(angle - a2) ) ? k2 : k1;
 	}
 
-	interpolation(pos_arr) {
-		let arr = [];
-		for(let i=0; i<pos_arr.length-1; i++) {
-			let d = Math.sqrt(Math.pow(pos_arr[i+1][0] - pos_arr[i][0], 2) + Math.pow(pos_arr[i+1][1] - pos_arr[i][1], 2));
-			let speed = 0.3/(Math.round(5*d/max_r) + 1);
-			for(let t=0; t<1; t+=speed) {
-				let x = pos_arr[i][0] + t*(pos_arr[i+1][0] - pos_arr[i][0]);
-				let y = pos_arr[i][1] + t*(pos_arr[i+1][1] - pos_arr[i][1]);
-				arr.push([x, y]);
-			}
-		}
-		arr.push(pos_arr.pop());
-		return arr;
-	}
-
 	update() {
 		let pos_arr = this.via_point();
-		pos_arr = this.interpolation(pos_arr);
 		this.render(pos_arr);
 	}
 
 	render(pos_arr) {
-		if( pos_arr.length > 0 ) {
-			setTimeout( () => {
-				this.get_joint_angle(pos_arr[0]);
-				this.update_joint();
-				this.plot();
-				this.render(pos_arr.slice(1));
-			}, 50)
-		} else {
+		if( pos_arr.length < 2 ) {
 			this.last_pos = this.cur_pos;
 			document.querySelector('#trace').innerHTML = '';
-			setTimeout( () => {
-				this.start();
-			}, 500);
+			this.start();
+			return
 		}
+
+		let pos = {x: pos_arr[0][0], y: pos_arr[0][1]};
+		let next_pos = {x: pos_arr[1][0], y: pos_arr[1][1]};
+		let dist = Math.sqrt( Math.pow(pos.x - next_pos.x, 2) + Math.pow(pos.y - next_pos.y, 2) );
+		let time_stamp = (dist + 30)*15;
+		let tween = new TWEEN.Tween(pos)
+    		.to(next_pos, time_stamp)
+    		.easing(TWEEN.Easing.Quadratic.InOut)
+    		.onUpdate(() => {
+    			this.get_joint_angle([pos.x, pos.y]);
+				this.update_joint();
+				this.plot();
+				let dist2 = Math.abs(pos.x - next_pos.x) + Math.abs(pos.y - next_pos.y);
+    			if( dist2 < 0.001 ) {
+    				TWEEN.removeAll();
+    				this.render(pos_arr.slice(1));
+    			};    			
+    		})
+    		.start();
 	}
 
 	start() {
@@ -188,3 +183,7 @@ armLink.canvas.innerHTML += `<circle cx="300" cy="300" r="${length+1}" style="st
 armLink.canvas.innerHTML += `<circle cx="300" cy="300" r="${min_r}" style="stroke-width: 2; stroke: blue; fill: none;"/>`;
 armLink.last_pos = [length - 10, 1];
 armLink.start();
+
+setInterval( () => {
+	TWEEN.update();
+}, 100)
