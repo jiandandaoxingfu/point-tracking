@@ -189,13 +189,7 @@ class Robot {
 		return (Math.abs(angle - a1) > Math.abs(angle - a2) ) ? k2 : k1;
 	}
 
-	show_trace(pos_arr, last_beta, beta) {
-		let delta = (beta - last_beta) % (2*pi);
-		if( delta < -pi ) {
-			delta += 2*pi;
-		} else if ( delta > pi ){
-			delta -= 2*pi;
-		}
+	show_trace(pos_arr, last_beta, delta) {
 		delta = delta/pos_arr.length;
 		let curve = [];
 		pos_arr = [...pos_arr, pos_arr.pop()];
@@ -280,11 +274,18 @@ class Robot {
 			let x1 = x*Math.cos(beta) + y*Math.sin(beta);
 			let z1 = z - this.arm_lengths[0];
 			let last_beta = this.joint_angles[0];
-			this.joint_angles = [last_beta];
+			this.joint_angles = [beta];
 			this.cur_pos = [x1, z1];
 			let pos_arr = this.via_point();
 			let pos_arr_ = this.interpolation([...pos_arr]);
-			this.show_trace(pos_arr_, last_beta, beta);
+			let delta = (beta - last_beta) % (2*pi);
+			if( delta < -pi ) {
+				delta += 2*pi;
+			} else if ( delta > pi ){
+				delta -= 2*pi;
+			}
+
+			this.show_trace(pos_arr_, last_beta, delta);
 			this.render(pos_arr);
 			
 			let dist = Math.sqrt( Math.pow(pos_arr[0][0] - pos_arr[1][0], 2) + Math.pow(pos_arr[0][1] - pos_arr[1][1], 2) );
@@ -294,7 +295,7 @@ class Robot {
 			let time_stamp = (dist + 35)*30;
 			let angle = {beta: last_beta};
 			new TWEEN.Tween(angle)
-    			.to({beta: beta}, time_stamp)
+    			.to({beta: last_beta + delta}, time_stamp)
     			.easing(TWEEN.Easing.Quadratic.InOut)
     			.onUpdate(() => {
     				this.robot.rotation.y = angle.beta;
@@ -304,23 +305,52 @@ class Robot {
 	}
 }
 
+
+var scene, controls, renderer, camera;
 const pi = Math.PI;
 var target, plane;
 var arm0, arm1, arm2, arm3;
-var len = [15, 15, 15, 15].map( d => d + 15*Math.random() );
-console.log(len);
-var width = len.slice(1).reduce( (i, j) => i+j);
-var height = width + len[0];
-var max_r = width;
-var min_r = Math.max(len[2] + len[1] - len[0], len[0], len[2] + len[0] - len[1]);
-var robot = new Robot(len, 2);
-robot.last_pos = [max_r - 5, 1];
-robot.init();
-setTimeout( () => {
-	robot.canvas = document.querySelector('canvas');
-	robot.start();
-}, 2000);
+var max_r, min_r, width, height;
 
+window.onload = () => {
+	// 场景
+	scene = new THREE.Scene();			
+	// 透视相机，更符合现实： 视角， 场景长宽比， 渲染始末距离相机的位置
+	camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 10000);			
+	// 渲染器
+	renderer = new THREE.WebGLRenderer();
+	renderer.setClearColor('black');		
+	renderer.setSize(window.innerWidth, window.innerHeight);
+
+	document.getElementById('main').appendChild(renderer.domElement);
+	renderer.render(scene, camera);
+
+	var len = [15, 15, 15, 15].map( d => d + 15*Math.random() );
+	console.log(len);
+	width = len.slice(1).reduce( (i, j) => i+j);
+	height = width + len[0];
+	max_r = width;
+	min_r = Math.max(len[2] + len[1] - len[0], len[0], len[2] + len[0] - len[1]);
+	var robot = new Robot(len, 2);
+	robot.last_pos = [max_r - 5, 1];
+	robot.init();
+	setTimeout( () => {
+		robot.canvas = document.querySelector('canvas');
+		robot.start();
+	}, 2000);
+	
+	camera.position.set(0, height, 2*height);
+	camera.lookAt(new THREE.Vector3(0, 0, 0));
+	controls = new THREE.TrackballControls(camera);
+	animate();
+}
+
+function animate() {
+	TWEEN.update();
+   	controls.update();
+   	renderer.render(scene, camera);
+   	requestAnimationFrame(animate);
+}
 
 //通过x,y,z指定旋转中心改变x，y，z的顺序，obj是要旋转的对象
 // position改变的是几何体相对于父级坐标系的位置而非中心。
@@ -331,13 +361,3 @@ function change_origin(pos, obj){
     obj.position.set(...pos.map(d => -d));
     return wrapper;
 }
-
-camera.position.set(0, height, 2*height);
-camera.lookAt(new THREE.Vector3(0, 0, 0));
-var controls = new THREE.TrackballControls(camera);
-(function animate() {
-	TWEEN.update();
-    controls.update();
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-})();
